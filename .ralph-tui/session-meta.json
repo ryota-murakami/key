@@ -1,0 +1,13 @@
+{
+  "id": "2e39957e-9510-4e05-ac4a-c8cf8b558fb3",
+  "status": "running",
+  "startedAt": "2026-02-19T15:49:27.642Z",
+  "updatedAt": "2026-02-19T16:17:34.079Z",
+  "agentPlugin": "claude",
+  "trackerPlugin": "json",
+  "currentIteration": 8,
+  "maxIterations": 0,
+  "totalTasks": 0,
+  "tasksCompleted": 8,
+  "cwd": "/Users/ryotamurakami/repository/key"
+}

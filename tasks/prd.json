@@ -1,0 +1,191 @@
+{
+  "name": "Key — Menubar Keybind Viewer for macOS",
+  "branchName": "feature/key-menubar-keybind-viewer",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "メニューバー常駐アプリの基盤作成",
+      "description": "SwiftUIでmacOSメニューバー常駐アプリの基盤を作成する。起動時にDockに表示されず、メニューバーに「⌘」テキストアイコンで常駐する。",
+      "acceptanceCriteria": [
+        "macOS menubar extra として「⌘」テキストアイコンが表示される",
+        "Dockにアプリアイコンが表示されない（LSUIElement設定）",
+        "メニューバーアイコンクリックでポップアップウィンドウが表示される",
+        "ポップアップ外クリックでウィンドウが閉じる",
+        "アプリ終了メニュー項目が存在する"
+      ],
+      "priority": 1,
+      "passes": true,
+      "dependsOn": [],
+      "labels": [
+        "foundation",
+        "swiftui"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-002",
+      "title": "JSONキーバインドデータの読み込み",
+      "description": "アプリバンドル内のデフォルトJSONと、~/.config/key/keybinds.jsonのユーザーカスタムJSONを読み込む仕組みを作成する。",
+      "acceptanceCriteria": [
+        "デフォルトのキーバインドJSONがアプリバンドルに含まれる",
+        "JSONスキーマ: カテゴリ名、キーバインド配列（アクション名+ショートカットキー）",
+        "~/.config/key/keybinds.jsonが存在すればそちらを優先読み込み",
+        "存在しない場合はバンドル内デフォルトを使用",
+        "JSONパースエラー時はデフォルトにフォールバック"
+      ],
+      "priority": 1,
+      "passes": true,
+      "dependsOn": [
+        "US-001"
+      ],
+      "labels": [
+        "data",
+        "json"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-003",
+      "title": "Editorセクションのキーバインドデータ作成",
+      "description": "Editorセクション（Move Cursor, Selection, Scroll, Code Edit, Find, Split Editor Window, Code Jump, IntelliSense, File Explorer, IDE Feature, AI）のキーバインドデータをJSONで作成する。",
+      "acceptanceCriteria": [
+        "Move Cursorカテゴリ: ^F/^B/^P/^N等のカーソル移動10項目",
+        "Selectionカテゴリ: 範囲選択系12項目",
+        "Scrollカテゴリ: ページ移動5項目",
+        "Code Editカテゴリ: 編集操作14項目",
+        "Findカテゴリ: 検索/置換4項目",
+        "Split Editor Windowカテゴリ: 分割操作5項目",
+        "Code Jumpカテゴリ: ジャンプ操作10項目",
+        "IntelliSenseカテゴリ: 補完1項目",
+        "File Explorerカテゴリ: ファイル操作8項目",
+        "IDE Featureカテゴリ: IDE機能16項目",
+        "AIカテゴリ: AI機能3項目"
+      ],
+      "priority": 2,
+      "passes": true,
+      "dependsOn": [
+        "US-002"
+      ],
+      "labels": [
+        "data",
+        "editor"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-004",
+      "title": "Git・Multiple Cursorセクションのキーバインドデータ作成",
+      "description": "Git（1項目）とMultiple Cursor（6項目）セクションのキーバインドデータをJSONに追加する。",
+      "acceptanceCriteria": [
+        "Gitカテゴリ: Git Blame（^G ^B）",
+        "Multiple Cursorカテゴリ: 6項目（Rectangular Selection等）",
+        "全データがUS-003と同一JSONファイル内に統合されている"
+      ],
+      "priority": 2,
+      "passes": true,
+      "dependsOn": [
+        "US-002",
+        "US-003"
+      ],
+      "labels": [
+        "data",
+        "git",
+        "multi-cursor"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-005",
+      "title": "ダークテーマのポップアップウィンドウUI",
+      "description": "spec.pngに準拠したダークテーマのポップアップウィンドウを実装する。固定サイズで、カテゴリをマルチカラムレイアウトで表示する。",
+      "acceptanceCriteria": [
+        "固定サイズのポップアップウィンドウ（約800x500pt程度）",
+        "ダークテーマ背景（#1E1E1E系のダークグレー）",
+        "モノスペースフォント使用（SF Mono or Menlo）",
+        "カテゴリ名がボールドで表示される",
+        "ショートカットキーが右寄せで表示される",
+        "修飾キー凡例がウィンドウ下部に表示される（⌘=command, ⌃=control, ⌥=option, ⇧=shift, ⏎=return）"
+      ],
+      "priority": 2,
+      "passes": true,
+      "dependsOn": [
+        "US-001",
+        "US-002"
+      ],
+      "labels": [
+        "ui",
+        "dark-theme"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-006",
+      "title": "マルチカラムレイアウトの実装",
+      "description": "spec.pngのようにカテゴリを複数カラムに配置するレイアウトを実装する。",
+      "acceptanceCriteria": [
+        "カテゴリが3〜4カラムに分散配置される",
+        "各カラムの高さがバランスよく配分される",
+        "カテゴリ間に適切な余白がある",
+        "カテゴリ名とキーバインドリストが視覚的に区別できる",
+        "スクロール不要で全データが1画面に収まる"
+      ],
+      "priority": 3,
+      "passes": true,
+      "dependsOn": [
+        "US-005"
+      ],
+      "labels": [
+        "ui",
+        "layout"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-007",
+      "title": "グローバルキーボードショートカット",
+      "description": "グローバルキーボードショートカットでポップアップの表示/非表示を切り替える機能を実装する。",
+      "acceptanceCriteria": [
+        "デフォルトのグローバルショートカットが設定されている（例: ⌘⇧K）",
+        "ショートカットでポップアップのトグルが動作する",
+        "他のアプリがフォーカス中でもショートカットが機能する",
+        "ショートカットキーの設定はJSONまたはアプリ設定で変更可能"
+      ],
+      "priority": 3,
+      "passes": true,
+      "dependsOn": [
+        "US-001"
+      ],
+      "labels": [
+        "feature",
+        "shortcut"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-008",
+      "title": "設定メニューとアプリ管理",
+      "description": "右クリックまたはメニューから設定ファイルを開く、ショートカット変更、アプリ終了などの管理機能を提供する。",
+      "acceptanceCriteria": [
+        "メニューバーアイコン右クリックでコンテキストメニュー表示",
+        "「Edit Keybinds...」で~/.config/key/keybinds.jsonをデフォルトエディタで開く",
+        "「Reload」でJSONを再読み込みしてUIに反映",
+        "「Quit」でアプリ終了",
+        "初回起動時に~/.config/key/ディレクトリとデフォルトJSONを作成"
+      ],
+      "priority": 3,
+      "passes": true,
+      "dependsOn": [
+        "US-001",
+        "US-002"
+      ],
+      "labels": [
+        "feature",
+        "settings"
+      ],
+      "completionNotes": "Completed by agent"
+    }
+  ],
+  "metadata": {
+    "updatedAt": "2026-02-19T16:17:34.060Z"
+  }
+}

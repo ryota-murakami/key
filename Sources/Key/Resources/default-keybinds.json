@@ -1,0 +1,193 @@
+{
+  "categories": [
+    {
+      "category": "General",
+      "keybinds": [
+        { "action": "Copy", "shortcut": "⌘C" },
+        { "action": "Paste", "shortcut": "⌘V" },
+        { "action": "Cut", "shortcut": "⌘X" },
+        { "action": "Undo", "shortcut": "⌘Z" },
+        { "action": "Redo", "shortcut": "⇧⌘Z" },
+        { "action": "Select All", "shortcut": "⌘A" }
+      ]
+    },
+    {
+      "category": "Window",
+      "keybinds": [
+        { "action": "Close Window", "shortcut": "⌘W" },
+        { "action": "Minimize", "shortcut": "⌘M" },
+        { "action": "Full Screen", "shortcut": "⌃⌘F" },
+        { "action": "New Window", "shortcut": "⌘N" }
+      ]
+    },
+    {
+      "category": "Navigation",
+      "keybinds": [
+        { "action": "Find", "shortcut": "⌘F" },
+        { "action": "Go to Top", "shortcut": "⌘↑" },
+        { "action": "Go to Bottom", "shortcut": "⌘↓" },
+        { "action": "Switch Tab", "shortcut": "⌃⇥" }
+      ]
+    },
+    {
+      "category": "Move Cursor",
+      "keybinds": [
+        { "action": "Move Forward", "shortcut": "⌃F" },
+        { "action": "Move Backward", "shortcut": "⌃B" },
+        { "action": "Move Up", "shortcut": "⌃P" },
+        { "action": "Move Down", "shortcut": "⌃N" },
+        { "action": "Move to Line Start", "shortcut": "⌃A" },
+        { "action": "Move to Line End", "shortcut": "⌃E" },
+        { "action": "Move Word Left", "shortcut": "⌥←" },
+        { "action": "Move Word Right", "shortcut": "⌥→" },
+        { "action": "Move to File Start", "shortcut": "⌘↑" },
+        { "action": "Move to File End", "shortcut": "⌘↓" }
+      ]
+    },
+    {
+      "category": "Selection",
+      "keybinds": [
+        { "action": "Select Left", "shortcut": "⇧←" },
+        { "action": "Select Right", "shortcut": "⇧→" },
+        { "action": "Select Line Up", "shortcut": "⇧↑" },
+        { "action": "Select Line Down", "shortcut": "⇧↓" },
+        { "action": "Select Word Left", "shortcut": "⇧⌥←" },
+        { "action": "Select Word Right", "shortcut": "⇧⌥→" },
+        { "action": "Select to Line Start", "shortcut": "⇧⌘←" },
+        { "action": "Select to Line End", "shortcut": "⇧⌘→" },
+        { "action": "Add Next Occurrence", "shortcut": "⌘D" },
+        { "action": "Select All Occurrences", "shortcut": "⇧⌘L" },
+        { "action": "Add Cursor Above", "shortcut": "⌥⌘↑" },
+        { "action": "Add Cursor Below", "shortcut": "⌥⌘↓" }
+      ]
+    },
+    {
+      "category": "Scroll",
+      "keybinds": [
+        { "action": "Page Up", "shortcut": "Fn↑" },
+        { "action": "Page Down", "shortcut": "Fn↓" },
+        { "action": "Home", "shortcut": "Fn←" },
+        { "action": "End", "shortcut": "Fn→" },
+        { "action": "Go to Line", "shortcut": "⌃G" }
+      ]
+    },
+    {
+      "category": "Code Edit",
+      "keybinds": [
+        { "action": "Cut Line", "shortcut": "⌘X" },
+        { "action": "Copy Line", "shortcut": "⌘C" },
+        { "action": "Delete Line", "shortcut": "⇧⌘K" },
+        { "action": "Move Line Down", "shortcut": "⌥↓" },
+        { "action": "Move Line Up", "shortcut": "⌥↑" },
+        { "action": "Copy Line Down", "shortcut": "⇧⌥↓" },
+        { "action": "Copy Line Up", "shortcut": "⇧⌥↑" },
+        { "action": "Insert Line Below", "shortcut": "⌘↩" },
+        { "action": "Insert Line Above", "shortcut": "⇧⌘↩" },
+        { "action": "Indent Line", "shortcut": "⌘]" },
+        { "action": "Outdent Line", "shortcut": "⌘[" },
+        { "action": "Toggle Line Comment", "shortcut": "⌘/" },
+        { "action": "Toggle Block Comment", "shortcut": "⇧⌥A" },
+        { "action": "Format Document", "shortcut": "⇧⌥F" }
+      ]
+    },
+    {
+      "category": "Find",
+      "keybinds": [
+        { "action": "Find", "shortcut": "⌘F" },
+        { "action": "Replace", "shortcut": "⌥⌘F" },
+        { "action": "Find in Files", "shortcut": "⇧⌘F" },
+        { "action": "Replace in Files", "shortcut": "⇧⌘H" }
+      ]
+    },
+    {
+      "category": "Split Editor Window",
+      "keybinds": [
+        { "action": "Split Editor", "shortcut": "⌘\\" },
+        { "action": "Focus 1st Group", "shortcut": "⌘1" },
+        { "action": "Focus 2nd Group", "shortcut": "⌘2" },
+        { "action": "Focus 3rd Group", "shortcut": "⌘3" },
+        { "action": "Move Editor to Next Group", "shortcut": "⌃⌘→" }
+      ]
+    },
+    {
+      "category": "Code Jump",
+      "keybinds": [
+        { "action": "Quick Open File", "shortcut": "⌘P" },
+        { "action": "Go to Symbol in File", "shortcut": "⇧⌘O" },
+        { "action": "Go to Symbol in Workspace", "shortcut": "⌘T" },
+        { "action": "Go to Definition", "shortcut": "F12" },
+        { "action": "Peek Definition", "shortcut": "⌥F12" },
+        { "action": "Go to References", "shortcut": "⇧F12" },
+        { "action": "Go to Implementation", "shortcut": "⌘F12" },
+        { "action": "Next Problem", "shortcut": "F8" },
+        { "action": "Go Back", "shortcut": "⌃-" },
+        { "action": "Go Forward", "shortcut": "⌃⇧-" }
+      ]
+    },
+    {
+      "category": "IntelliSense",
+      "keybinds": [
+        { "action": "Trigger Suggest", "shortcut": "⌃Space" }
+      ]
+    },
+    {
+      "category": "File Explorer",
+      "keybinds": [
+        { "action": "Focus Explorer", "shortcut": "⇧⌘E" },
+        { "action": "Open File", "shortcut": "⌘↓" },
+        { "action": "Preview File", "shortcut": "Space" },
+        { "action": "Rename", "shortcut": "↩" },
+        { "action": "New File", "shortcut": "⌘N" },
+        { "action": "Delete File", "shortcut": "⌘⌫" },
+        { "action": "Copy File", "shortcut": "⌘C" },
+        { "action": "Paste File", "shortcut": "⌘V" }
+      ]
+    },
+    {
+      "category": "IDE Feature",
+      "keybinds": [
+        { "action": "Command Palette", "shortcut": "⇧⌘P" },
+        { "action": "Open Settings", "shortcut": "⌘," },
+        { "action": "Keyboard Shortcuts", "shortcut": "⌘K ⌘S" },
+        { "action": "Toggle Terminal", "shortcut": "⌃`" },
+        { "action": "Toggle Sidebar", "shortcut": "⌘B" },
+        { "action": "Toggle Panel", "shortcut": "⌘J" },
+        { "action": "Show Problems", "shortcut": "⇧⌘M" },
+        { "action": "Show Output", "shortcut": "⇧⌘U" },
+        { "action": "Show Debug", "shortcut": "⇧⌘D" },
+        { "action": "Source Control", "shortcut": "⌃⇧G" },
+        { "action": "Extensions", "shortcut": "⇧⌘X" },
+        { "action": "Close Editor", "shortcut": "⌘W" },
+        { "action": "Reopen Closed Editor", "shortcut": "⇧⌘T" },
+        { "action": "Switch Editor Tab", "shortcut": "⌃⇥" },
+        { "action": "Change Theme", "shortcut": "⌘K ⌘T" },
+        { "action": "Zen Mode", "shortcut": "⌘K Z" }
+      ]
+    },
+    {
+      "category": "AI",
+      "keybinds": [
+        { "action": "Inline Chat", "shortcut": "⌘I" },
+        { "action": "Open Chat Panel", "shortcut": "⌃⌘I" },
+        { "action": "Accept Suggestion", "shortcut": "⇥" }
+      ]
+    },
+    {
+      "category": "Git",
+      "keybinds": [
+        { "action": "Git Blame", "shortcut": "⌃G ⌃B" }
+      ]
+    },
+    {
+      "category": "Multiple Cursor",
+      "keybinds": [
+        { "action": "Add Cursor Above", "shortcut": "⌥⌘↑" },
+        { "action": "Add Cursor Below", "shortcut": "⌥⌘↓" },
+        { "action": "Rectangular Selection", "shortcut": "⇧⌥⌘↓" },
+        { "action": "Add Cursors to Line Ends", "shortcut": "⇧⌥I" },
+        { "action": "Add Next Occurrence", "shortcut": "⌘D" },
+        { "action": "Undo Last Cursor", "shortcut": "⌘U" }
+      ]
+    }
+  ]
+}
