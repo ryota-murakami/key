@@ -8,6 +8,7 @@ import SwiftUI
 /// A modifier-key legend bar sits at the bottom.
 struct PopupView: View {
     private let store = KeybindStore.shared
+    private let settings = SettingsStore.shared
 
     var body: some View {
         VStack(spacing: 0) {
@@ -16,7 +17,7 @@ struct PopupView: View {
                 ForEach(Array(store.columns.enumerated()), id: \.offset) { _, column in
                     VStack(alignment: .leading, spacing: 14) {
                         ForEach(Array(column.enumerated()), id: \.offset) { _, category in
-                            CategoryBlock(category: category)
+                            CategoryBlock(category: category, fontSize: settings.fontSize)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -29,9 +30,9 @@ struct PopupView: View {
             Spacer(minLength: 0)
 
             // Modifier key legend
-            LegendBar()
+            LegendBar(fontSize: settings.legendFontSize)
         }
-        .frame(width: 820, height: 520)
+        .frame(width: settings.windowWidth, height: settings.windowHeight)
         .background(Color(nsColor: NSColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1.0)))
     }
 }
@@ -46,16 +47,17 @@ struct PopupView: View {
 /// ```
 private struct CategoryBlock: View {
     let category: KeybindCategory
+    let fontSize: CGFloat
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(category.category)
-                .font(.system(.caption, design: .monospaced).bold())
+                .font(.system(size: fontSize, design: .monospaced).bold())
                 .foregroundStyle(Color.white)
-                .padding(.bottom, 2)
+                .padding(.bottom, 4)
 
             ForEach(Array(category.keybinds.enumerated()), id: \.offset) { _, keybind in
-                KeybindRow(keybind: keybind)
+                KeybindRow(keybind: keybind, fontSize: fontSize)
             }
         }
     }
@@ -69,6 +71,7 @@ private struct CategoryBlock: View {
 /// ```
 private struct KeybindRow: View {
     let keybind: Keybind
+    let fontSize: CGFloat
 
     var body: some View {
         HStack(spacing: 6) {
@@ -78,7 +81,7 @@ private struct KeybindRow: View {
             Text(keybind.shortcut)
                 .foregroundStyle(Color(white: 0.55))
         }
-        .font(.system(size: 10.5, design: .monospaced))
+        .font(.system(size: fontSize, design: .monospaced))
         .lineLimit(1)
     }
 }
@@ -88,6 +91,8 @@ private struct KeybindRow: View {
 /// @example
 /// ⌘=command  ⌃=control  ⌥=option  ⇧=shift  ⏎=return
 private struct LegendBar: View {
+    let fontSize: CGFloat
+
     private let legends = [
         ("⌘", "command"),
         ("⌃", "control"),
@@ -102,7 +107,7 @@ private struct LegendBar: View {
                 Text("\(symbol)=\(name)")
             }
         }
-        .font(.system(size: 10, design: .monospaced))
+        .font(.system(size: fontSize, design: .monospaced))
         .foregroundStyle(Color(white: 0.45))
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)

@@ -31,6 +31,7 @@ struct KeyApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var shortcutManager: GlobalShortcutManager?
     private var rightClickMonitor: Any?
+    private var settingsWindow: NSPanel?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -89,12 +90,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// Builds the context menu with Edit Keybinds, Reload, and Quit items.
+    /// Builds the context menu with Edit Keybinds, Reload, Settings, and Quit items.
     ///
     /// @example
     /// Right-clicking the ⌘ icon shows:
     /// - Edit Keybinds... (opens ~/.config/key/keybinds.json in default editor)
     /// - Reload (re-reads JSON and refreshes UI)
+    /// - Settings... (opens display settings panel)
     /// - ─────── (separator)
     /// - Quit (terminates the app)
     private func buildContextMenu() -> NSMenu {
@@ -115,6 +117,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         reloadItem.target = self
         menu.addItem(reloadItem)
+
+        let settingsItem = NSMenuItem(
+            title: "Settings...",
+            action: #selector(openSettings),
+            keyEquivalent: ""
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -138,6 +148,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Reloads keybind data from disk and refreshes the popup UI.
     @objc private func reloadKeybinds() {
         KeybindStore.shared.reload()
+    }
+
+    /// Opens the display settings panel.
+    @objc private func openSettings() {
+        if let existing = settingsWindow, existing.isVisible {
+            existing.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        let panel = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 220),
+            styleMask: [.titled, .closable, .utilityWindow],
+            backing: .buffered,
+            defer: false
+        )
+        panel.title = "Settings"
+        panel.isFloatingPanel = true
+        panel.becomesKeyOnlyIfNeeded = false
+        panel.contentViewController = NSHostingController(rootView: SettingsView())
+        panel.center()
+        panel.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        settingsWindow = panel
     }
 
     /// Terminates the application.

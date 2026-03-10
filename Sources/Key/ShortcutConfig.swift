@@ -12,6 +12,9 @@ import Carbon
 /// ```
 struct ShortcutConfig: Codable {
     let globalShortcut: String
+    var fontSize: CGFloat?
+    var windowWidth: CGFloat?
+    var windowHeight: CGFloat?
 
     static let defaultShortcut = "⌘⇧K"
 
@@ -32,6 +35,31 @@ struct ShortcutConfig: Codable {
             return config
         }
         return ShortcutConfig(globalShortcut: defaultShortcut)
+    }
+
+    /// Saves the current configuration to `~/.config/key/settings.json`.
+    ///
+    /// @example
+    /// ```swift
+    /// var config = ShortcutConfig.load()
+    /// config.fontSize = 18
+    /// config.save()
+    /// ```
+    func save() {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        let dir = "\(home)/.config/key"
+        let path = "\(dir)/settings.json"
+
+        let fm = FileManager.default
+        if !fm.fileExists(atPath: dir) {
+            try? fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        }
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        if let data = try? encoder.encode(self) {
+            try? data.write(to: URL(fileURLWithPath: path))
+        }
     }
 
     /// Parses the shortcut string into Carbon key code and modifier mask.
