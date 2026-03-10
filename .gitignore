@@ -43,6 +43,7 @@ Temporary Items
 # IDE
 .vscode/
 .idea/
+.windsurf/
 *.swp
 *.swo
 *~
