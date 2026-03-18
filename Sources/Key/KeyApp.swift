@@ -1,3 +1,4 @@
+import ServiceManagement
 import SwiftUI
 
 /// macOS menubar app that displays keybind information in a popup window.
@@ -90,13 +91,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// Builds the context menu with Edit Keybinds, Reload, Settings, and Quit items.
+    /// Builds the context menu with Edit Keybinds, Reload, Settings, Launch at Login, and Quit items.
     ///
     /// @example
     /// Right-clicking the ⌘ icon shows:
     /// - Edit Keybinds... (opens ~/.config/key/keybinds.json in default editor)
     /// - Reload (re-reads JSON and refreshes UI)
     /// - Settings... (opens display settings panel)
+    /// - Launch at Login (toggles login item registration via SMAppService)
     /// - ─────── (separator)
     /// - Quit (terminates the app)
     private func buildContextMenu() -> NSMenu {
@@ -125,6 +127,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         settingsItem.target = self
         menu.addItem(settingsItem)
+
+        let launchAtLoginItem = NSMenuItem(
+            title: "Launch at Login",
+            action: #selector(toggleLaunchAtLogin),
+            keyEquivalent: ""
+        )
+        launchAtLoginItem.target = self
+        launchAtLoginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        menu.addItem(launchAtLoginItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -173,6 +184,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
 
         settingsWindow = panel
+    }
+
+    /// Toggles whether the app launches at login via SMAppService.
+    ///
+    /// @example
+    /// ```swift
+    /// // If currently enabled, unregisters the login item.
+    /// // If currently disabled, registers it.
+    /// toggleLaunchAtLogin()
+    /// ```
+    @objc private func toggleLaunchAtLogin() {
+        let service = SMAppService.mainApp
+        if service.status == .enabled {
+            service.unregister { error in
+                if let error = error {
+                    print("[Key] Failed to unregister login item: \(error)")
+                }
+            }
+        } else {
+            do {
+                try service.register()
+            } catch {
+                print("[Key] Failed to register login item: \(error)")
+            }
+        }
     }
 
     /// Terminates the application.
