@@ -83,24 +83,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
             let menu = self.buildContextMenu()
             menu.popUp(
-                positioning: nil,
-                at: NSPoint(x: 0, y: button.bounds.height + 5),
+                positioning: menu.items.first,
+                at: NSPoint(x: 0, y: button.bounds.height),
                 in: button
             )
             return nil // consume the event
         }
     }
 
-    /// Builds the context menu with Edit Keybinds, Reload, Settings, Launch at Login, and Quit items.
+    /// Builds the context menu for the menubar icon's right-click action.
     ///
     /// @example
     /// Right-clicking the ⌘ icon shows:
-    /// - Edit Keybinds... (opens ~/.config/key/keybinds.json in default editor)
-    /// - Reload (re-reads JSON and refreshes UI)
-    /// - Settings... (opens display settings panel)
-    /// - Launch at Login (toggles login item registration via SMAppService)
+    /// - Edit Keybinds... → opens ~/.config/key/keybinds.json
+    /// - Reload → re-reads JSON
+    /// - Launch at Login → toggles SMAppService login item
     /// - ─────── (separator)
-    /// - Quit (terminates the app)
+    /// - Settings... → opens display settings panel
+    /// - Quit → terminates the app
     private func buildContextMenu() -> NSMenu {
         let menu = NSMenu()
 
@@ -120,14 +120,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         reloadItem.target = self
         menu.addItem(reloadItem)
 
-        let settingsItem = NSMenuItem(
-            title: "Settings...",
-            action: #selector(openSettings),
-            keyEquivalent: ""
-        )
-        settingsItem.target = self
-        menu.addItem(settingsItem)
-
         let launchAtLoginItem = NSMenuItem(
             title: "Launch at Login",
             action: #selector(toggleLaunchAtLogin),
@@ -138,6 +130,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(launchAtLoginItem)
 
         menu.addItem(NSMenuItem.separator())
+
+        let settingsItem = NSMenuItem(
+            title: "Settings...",
+            action: #selector(openSettings),
+            keyEquivalent: ""
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
 
         let quitItem = NSMenuItem(
             title: "Quit",
