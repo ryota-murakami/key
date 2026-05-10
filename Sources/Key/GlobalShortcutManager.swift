@@ -20,15 +20,22 @@ final class GlobalShortcutManager {
 
     /// Registers a global hotkey with the given Carbon key code and modifier mask.
     ///
+    /// - Parameters:
+    ///   - keyCode: Carbon virtual key code to listen for.
+    ///   - modifiers: Carbon modifier mask required with the key.
+    ///   - handler: Closure called when the hotkey is pressed.
+    /// - Returns: `true` when both the event handler and hotkey registration succeed.
+    ///
     /// @example
     /// ```swift
     /// // Register ⌘⇧K
-    /// manager.register(
+    /// let didRegister = manager.register(
     ///     keyCode: UInt32(kVK_ANSI_K),
     ///     modifiers: UInt32(cmdKey | shiftKey)
     /// ) { togglePopup() }
     /// ```
-    func register(keyCode: UInt32, modifiers: UInt32, handler: @escaping () -> Void) {
+    @discardableResult
+    func register(keyCode: UInt32, modifiers: UInt32, handler: @escaping () -> Void) -> Bool {
         self.callback = handler
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
 
@@ -48,7 +55,7 @@ final class GlobalShortcutManager {
 
         guard installStatus == noErr else {
             print("[Key] Failed to install event handler: \(installStatus)")
-            return
+            return false
         }
 
         let hotKeyID = EventHotKeyID(signature: 0x4B455959, id: 1) // 'KEYY'
@@ -59,7 +66,10 @@ final class GlobalShortcutManager {
 
         if regStatus != noErr {
             print("[Key] Failed to register hotkey: \(regStatus)")
+            return false
         }
+
+        return true
     }
 
     /// Called from the C callback when the registered hotkey is pressed.

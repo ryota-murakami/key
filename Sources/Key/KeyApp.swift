@@ -48,17 +48,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Global Shortcut
 
     /// Loads shortcut config and registers the global hotkey.
-    private func setupGlobalShortcut() {
+    ///
+    /// This method is also called after Settings changes so the newly recorded
+    /// shortcut starts working immediately.
+    ///
+    /// - Returns: `true` when the configured shortcut was registered successfully.
+    @discardableResult
+    private func setupGlobalShortcut() -> Bool {
+        shortcutManager = nil
+
         let config = ShortcutConfig.load()
         guard let (keyCode, modifiers) = config.carbonValues() else {
             print("[Key] Invalid shortcut config: \(config.globalShortcut)")
-            return
+            return false
         }
 
-        shortcutManager = GlobalShortcutManager()
-        shortcutManager?.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
+        let manager = GlobalShortcutManager()
+        let didRegister = manager.register(keyCode: keyCode, modifiers: modifiers) { [weak self] in
             self?.toggleMenuBarPopup()
         }
+        guard didRegister else {
+            return false
+        }
+
+        shortcutManager = manager
+        return true
     }
 
     /// Toggles the MenuBarExtra popup by simulating a click on its status bar button.
@@ -161,7 +175,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         KeybindStore.shared.reload()
     }
 
-    /// Opens the display settings panel.
+    /// Opens the settings panel for display options and global shortcut capture.
     @objc private func openSettings() {
         if let existing = settingsWindow, existing.isVisible {
             existing.makeKeyAndOrderFront(nil)
@@ -170,7 +184,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 220),
+            contentRect: NSRect(x: 0, y: 0, width: 380, height: 300),
             styleMask: [.titled, .closable, .utilityWindow],
             backing: .buffered,
             defer: false
@@ -178,7 +192,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.title = "Settings"
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = false
-        panel.contentViewController = NSHostingController(rootView: SettingsView())
+        panel.contentViewController = NSHostingController(
+            rootView: SettingsView { [weak self] in
+                self?.setupGlobalShortcut() ?? false
+            }
+        )
         panel.center()
         panel.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
