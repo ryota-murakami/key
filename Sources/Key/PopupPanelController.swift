@@ -19,7 +19,7 @@ final class PopupPanelController {
     var statusButtonProvider: (() -> NSStatusBarButton?)?
 
     private var panel: KeybindPanel?
-    private var hostingController: NSHostingController<PopupView>?
+    private var hostingController: NSHostingController<SizedPopupView>?
     private var moveObserver: NSObjectProtocol?
     private var outsideClickMonitor: Any?
     private var localOutsideClickMonitor: Any?
@@ -140,11 +140,18 @@ final class PopupPanelController {
     private func pinHostingViewToPanel() {
         guard let panel, let content = panel.contentView, let hosting = hostingController else { return }
         hosting.view.frame = content.bounds
+        hosting.rootView = sizedPopupView()
+    }
+
+    /// Builds {@link PopupView} with an explicit size matching the current panel, so NSHostingView cannot center a hug-sized card.
+    private func sizedPopupView() -> SizedPopupView {
+        let settings = SettingsStore.shared
+        return SizedPopupView(width: settings.windowWidth, height: settings.windowHeight)
     }
 
     /// Recreates hosting content after a profile switch so Observation updates paint immediately.
     func refreshContent() {
-        hostingController?.rootView = PopupView()
+        hostingController?.rootView = sizedPopupView()
     }
 
     /// Starts a chrome-bar drag so later {@link PopupPanelController.moveToDrag} translations are absolute.
@@ -210,7 +217,7 @@ final class PopupPanelController {
         panel.identifier = NSUserInterfaceItemIdentifier("key.popup-panel")
         panel.animationBehavior = .utilityWindow
 
-        let hosting = NSHostingController(rootView: PopupView())
+        let hosting = NSHostingController(rootView: sizedPopupView())
         hosting.sizingOptions = []
         hosting.view.wantsLayer = true
         hosting.view.layer?.isOpaque = false

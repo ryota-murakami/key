@@ -8,6 +8,24 @@ import SwiftUI
 /// @example
 /// Categories are distributed across columns to balance vertical space.
 /// Each category shows a bold header followed by action–shortcut rows.
+/// Explicitly sized wrapper so {@link NSHostingView} cannot center a hug-sized {@link PopupView}.
+///
+/// {@link PopupPanelController} rebuilds this on every resize to match the panel frame.
+///
+/// @example
+/// ```swift
+/// SizedPopupView(width: 860, height: 850)
+/// ```
+struct SizedPopupView: View {
+    var width: CGFloat
+    var height: CGFloat
+
+    var body: some View {
+        PopupView()
+            .frame(width: width, height: height, alignment: .top)
+    }
+}
+
 struct PopupView: View {
     private let store = KeybindStore.shared
     private let settings = SettingsStore.shared
