@@ -89,6 +89,9 @@ Config.local.swift
 .ralph-tui/state/
 .ralph-tui/logs/
 
+# Local real-device QA captures
+.qa-screenshots/
+
 # Serena
 .serena/cache/
 .serena/logs/

@@ -6,7 +6,7 @@ import Foundation
 /// ```json
 /// { "action": "Copy", "shortcut": "⌘C" }
 /// ```
-struct Keybind: Codable, Equatable {
+struct Keybind: Codable, Equatable, Hashable {
     let action: String
     let shortcut: String
 }
@@ -17,9 +17,11 @@ struct Keybind: Codable, Equatable {
 /// ```json
 /// { "category": "Editing", "keybinds": [{ "action": "Copy", "shortcut": "⌘C" }] }
 /// ```
-struct KeybindCategory: Codable, Equatable {
+struct KeybindCategory: Codable, Equatable, Hashable, Identifiable {
     let category: String
     let keybinds: [Keybind]
+
+    var id: String { category }
 }
 
 /// Top-level container for the keybinds JSON file.

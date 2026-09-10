@@ -9,6 +9,10 @@ let package = Package(
             name: "Key",
             path: "Sources/Key",
             resources: [.process("Resources")]
-        )
+        ),
+        .testTarget(
+            name: "KeyTests",
+            path: "Tests/KeyTests"
+        ),
     ]
 )
