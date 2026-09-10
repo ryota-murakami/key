@@ -122,7 +122,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Hides the unused MenuBarExtra content window if SwiftUI still materializes it.
     private func hideMenuBarExtraContentWindow() {
         extraWindowObserver = NotificationCenter.default.addObserver(
-            forName: NSWindow.didBecomeVisibleNotification,
+            forName: NSWindow.didBecomeKeyNotification,
             object: nil,
             queue: .main
         ) { [weak self] notification in
