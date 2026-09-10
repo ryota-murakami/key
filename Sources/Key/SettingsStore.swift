@@ -62,6 +62,10 @@ final class SettingsStore {
         backgroundOpacity = Self.clampOpacity(config.backgroundOpacity ?? Defaults.backgroundOpacity)
         alwaysOnTop = config.alwaysOnTop ?? Defaults.alwaysOnTop
         selectedProfile = config.selectedProfile ?? Defaults.selectedProfile
+        // Rewrite rounded integers so a previous float size does not linger on disk.
+        if windowWidth != config.windowWidth || windowHeight != config.windowHeight {
+            save()
+        }
     }
 
     /// Saves current app settings to `~/.config/key/settings.json`.

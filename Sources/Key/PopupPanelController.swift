@@ -103,6 +103,7 @@ final class PopupPanelController {
         frame.origin.y += frame.height - size.height
         frame.size = size
         panel.setFrame(frame, display: true, animate: false)
+        pinHostingViewToPanel()
     }
 
     /// Resizes the panel while anchoring the opposite edge of the dragged {@link ResizeEdge}.
@@ -131,7 +132,14 @@ final class PopupPanelController {
         }
 
         panel.setFrame(frame, display: true, animate: false)
+        pinHostingViewToPanel()
         hasCustomPosition = true
+    }
+
+    /// Keeps {@link PopupView} flush to the panel so a taller window does not leave a dead band at the top.
+    private func pinHostingViewToPanel() {
+        guard let panel, let content = panel.contentView, let hosting = hostingController else { return }
+        hosting.view.frame = content.bounds
     }
 
     /// Recreates hosting content after a profile switch so Observation updates paint immediately.
@@ -208,7 +216,11 @@ final class PopupPanelController {
         hosting.view.layer?.cornerRadius = 10
         hosting.view.layer?.masksToBounds = true
         hosting.view.layer?.backgroundColor = NSColor.clear.cgColor
+        hosting.view.autoresizingMask = [.width, .height]
         panel.contentViewController = hosting
+        if let content = panel.contentView {
+            hosting.view.frame = content.bounds
+        }
 
         self.panel = panel
         self.hostingController = hosting

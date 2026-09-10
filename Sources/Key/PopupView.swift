@@ -137,8 +137,8 @@ private struct ProfileChromeBar: View {
             Text(profile.displayName)
                 .font(.system(size: 11, weight: selected ? .semibold : .regular, design: .monospaced))
                 .foregroundStyle(selected ? Color.white : Color(white: 0.62))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
                 .background(
                     RoundedRectangle(cornerRadius: 6)
                         .fill(selected ? Color.white.opacity(0.12) : Color.clear)
