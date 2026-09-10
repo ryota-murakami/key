@@ -25,6 +25,8 @@ final class PopupPanelController {
     private var localOutsideClickMonitor: Any?
     /// After the user drags the pinned overlay, keep that origin for the session.
     private var hasCustomPosition = false
+    /// Ignore outside clicks briefly after show so the opening click cannot dismiss.
+    private var ignoreOutsideClicksUntil: Date?
 
     var isVisible: Bool { panel?.isVisible == true }
 
@@ -46,6 +48,7 @@ final class PopupPanelController {
         syncContentSize()
         positionIfNeeded()
         panel.orderFrontRegardless()
+        ignoreOutsideClicksUntil = Date().addingTimeInterval(0.35)
         // Unpinned overlay becomes key so Escape can dismiss it.
         if !SettingsStore.shared.alwaysOnTop {
             panel.makeKeyAndOrderFront(nil)
@@ -220,6 +223,9 @@ final class PopupPanelController {
 
     /// Hides when the pointer is not over the overlay and not over the menubar button.
     private func hideIfClickIsOutside() {
+        if let until = ignoreOutsideClicksUntil, Date() < until {
+            return
+        }
         guard !SettingsStore.shared.alwaysOnTop, isVisible, let panel else { return }
 
         let location = NSEvent.mouseLocation

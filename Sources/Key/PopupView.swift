@@ -41,7 +41,6 @@ struct PopupView: View {
             }
 
             ResizeBorderOverlay()
-                .coordinateSpace(name: "overlay")
         }
         .frame(width: settings.windowWidth, height: settings.windowHeight)
         .background(overlayBackground)

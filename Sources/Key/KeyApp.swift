@@ -49,7 +49,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Delay to ensure MenuBarExtra has created its status bar button
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.setupGlobalShortcut()
-            self.installStatusItemMonitor()
+            self.installStatusItemMonitor(attempt: 0)
         }
         hideMenuBarExtraContentWindow()
     }
@@ -89,7 +89,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Consumes clicks on the ⌘ status button so MenuBarExtra never opens its 1×1 window.
     ///
     /// Left-click toggles {@link PopupPanelController}; right-click shows the context menu.
-    private func installStatusItemMonitor() {
+    /// Retries because the status button is created asynchronously.
+    ///
+    /// - Parameter attempt: Zero-based retry count used when the button is not ready yet.
+    private func installStatusItemMonitor(attempt: Int) {
+        if findMenuBarButton() == nil, attempt < 10 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.installStatusItemMonitor(attempt: attempt + 1)
+            }
+            return
+        }
+
         statusItemMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self, let button = self.findMenuBarButton(), event.window == button.window else {
                 return event

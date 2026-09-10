@@ -1,10 +1,12 @@
 import AppKit
 import SwiftUI
 
-/// Invisible hit targets on every edge and corner so the overlay border can be dragged to resize.
+/// Edge and corner hit targets so the overlay border can be dragged to resize.
 ///
-/// Writes clamped sizes into {@link SettingsStore} and asks {@link PopupPanelController}
-/// to keep the opposite edge anchored. Hover switches to the matching resize cursor.
+/// Only the chrome strips receive hits — the center stays click-through so
+/// {@link ProfileChromeBar} tabs and the pin button keep working. Writes clamped
+/// sizes into {@link SettingsStore} and asks {@link PopupPanelController} to
+/// keep the opposite edge anchored.
 ///
 /// @example
 /// ```swift
@@ -23,50 +25,66 @@ struct ResizeBorderOverlay: View {
     @State private var activeEdge: ResizeEdge?
 
     var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
+        // Spacer in the center is click-through so table tabs and the pin stay usable.
+        VStack(spacing: 0) {
+            edgeStrip(edge: .top, cursor: .resizeUpDown)
+                .frame(height: edgeThickness)
 
-            ZStack {
-                handle(edge: .top, cursor: .resizeUpDown, frame: CGRect(x: cornerSize, y: 0, width: w - cornerSize * 2, height: edgeThickness))
-                handle(edge: .bottom, cursor: .resizeUpDown, frame: CGRect(x: cornerSize, y: h - edgeThickness, width: w - cornerSize * 2, height: edgeThickness))
-                handle(edge: .leading, cursor: .resizeLeftRight, frame: CGRect(x: 0, y: cornerSize, width: edgeThickness, height: h - cornerSize * 2))
-                handle(edge: .trailing, cursor: .resizeLeftRight, frame: CGRect(x: w - edgeThickness, y: cornerSize, width: edgeThickness, height: h - cornerSize * 2))
-
-                handle(edge: .topLeading, cursor: .crosshair, frame: CGRect(x: 0, y: 0, width: cornerSize, height: cornerSize))
-                handle(edge: .topTrailing, cursor: .crosshair, frame: CGRect(x: w - cornerSize, y: 0, width: cornerSize, height: cornerSize))
-                handle(edge: .bottomLeading, cursor: .crosshair, frame: CGRect(x: 0, y: h - cornerSize, width: cornerSize, height: cornerSize))
-                handle(edge: .bottomTrailing, cursor: .crosshair, frame: CGRect(x: w - cornerSize, y: h - cornerSize, width: cornerSize, height: cornerSize))
+            HStack(spacing: 0) {
+                edgeStrip(edge: .leading, cursor: .resizeLeftRight)
+                    .frame(width: edgeThickness)
+                Spacer(minLength: 0)
+                    .allowsHitTesting(false)
+                edgeStrip(edge: .trailing, cursor: .resizeLeftRight)
+                    .frame(width: edgeThickness)
             }
+
+            edgeStrip(edge: .bottom, cursor: .resizeUpDown)
+                .frame(height: edgeThickness)
         }
-        .allowsHitTesting(true)
+        .overlay(alignment: .topLeading) { cornerHandle(.topLeading) }
+        .overlay(alignment: .topTrailing) { cornerHandle(.topTrailing) }
+        .overlay(alignment: .bottomLeading) { cornerHandle(.bottomLeading) }
+        .overlay(alignment: .bottomTrailing) { cornerHandle(.bottomTrailing) }
     }
 
-    /// A single edge or corner drag target with hover cursor feedback.
+    /// Full-width or full-height edge strip that starts a {@link ResizeEdge} drag.
     ///
     /// - Parameters:
-    ///   - edge: Which {@link ResizeEdge} this handle drives.
-    ///   - cursor: AppKit cursor shown while the pointer is over the handle.
-    ///   - frame: Handle rectangle in the overlay's local coordinates.
-    private func handle(edge: ResizeEdge, cursor: NSCursor, frame: CGRect) -> some View {
+    ///   - edge: Top / bottom / leading / trailing edge being grabbed.
+    ///   - cursor: Resize cursor shown while the pointer is over the strip.
+    private func edgeStrip(edge: ResizeEdge, cursor: NSCursor) -> some View {
         ResizeHandleView(cursor: cursor)
-            .frame(width: frame.width, height: frame.height)
-            .position(x: frame.midX, y: frame.midY)
-            .gesture(
-                DragGesture(minimumDistance: 1, coordinateSpace: .named("overlay"))
-                    .onChanged { value in
-                        // Capture the starting size once so each translation is absolute.
-                        if activeEdge != edge {
-                            activeEdge = edge
-                            dragStart = CGSize(width: settings.windowWidth, height: settings.windowHeight)
-                        }
-                        applyDrag(translation: value.translation, edge: edge)
-                    }
-                    .onEnded { _ in
-                        settings.save()
-                        activeEdge = nil
-                    }
-            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .gesture(dragGesture(edge: edge))
+    }
+
+    /// Square corner handle placed with alignment overlays so it wins over edge strips.
+    ///
+    /// - Parameter edge: Corner {@link ResizeEdge} to drive.
+    private func cornerHandle(_ edge: ResizeEdge) -> some View {
+        ResizeHandleView(cursor: .crosshair)
+            .frame(width: cornerSize, height: cornerSize)
+            .gesture(dragGesture(edge: edge))
+    }
+
+    /// Shared drag gesture that records the start size once, then resizes live.
+    ///
+    /// - Parameter edge: Edge or corner this gesture belongs to.
+    private func dragGesture(edge: ResizeEdge) -> some Gesture {
+        DragGesture(minimumDistance: 1)
+            .onChanged { value in
+                // Capture the starting size once so each translation is absolute.
+                if activeEdge != edge {
+                    activeEdge = edge
+                    dragStart = CGSize(width: settings.windowWidth, height: settings.windowHeight)
+                }
+                applyDrag(translation: value.translation, edge: edge)
+            }
+            .onEnded { _ in
+                settings.save()
+                activeEdge = nil
+            }
     }
 
     /// Maps a SwiftUI drag translation into clamped width / height and panel resize.
