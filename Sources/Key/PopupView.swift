@@ -13,7 +13,7 @@ struct PopupView: View {
     private let settings = SettingsStore.shared
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             VStack(spacing: 0) {
                 ProfileChromeBar()
 
@@ -36,11 +36,11 @@ struct PopupView: View {
                 }
                 .scrollContentBackground(.hidden)
                 .scrollIndicators(.never)
-
-                Spacer(minLength: 0)
+                .frame(maxHeight: .infinity)
 
                 LegendBar(fontSize: settings.legendFontSize, opacity: settings.backgroundOpacity)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             ResizeBorderOverlay()
         }
