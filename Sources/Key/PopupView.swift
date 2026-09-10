@@ -95,7 +95,7 @@ private struct ProfileChromeBar: View {
             Spacer(minLength: 8)
 
             Color.clear
-                .frame(minWidth: 24, minHeight: 22)
+                .frame(width: 28, height: 22)
                 .contentShape(Rectangle())
                 .gesture(
                     DragGesture(minimumDistance: 2)
@@ -136,6 +136,7 @@ private struct ProfileChromeBar: View {
             .help(settings.alwaysOnTop ? "Unpin overlay" : "Keep overlay in front of other windows")
             .accessibilityLabel(settings.alwaysOnTop ? "Unpin overlay" : "Pin overlay on top")
         }
+        .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal, 16)
         .padding(.top, 10)
         .padding(.bottom, 6)
