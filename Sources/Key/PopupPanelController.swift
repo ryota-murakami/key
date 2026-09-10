@@ -27,6 +27,7 @@ final class PopupPanelController {
     private var hasCustomPosition = false
     /// Ignore outside clicks briefly after show so the opening click cannot dismiss.
     private var ignoreOutsideClicksUntil: Date?
+    private var moveStartOrigin: NSPoint?
 
     var isVisible: Bool { panel?.isVisible == true }
 
@@ -70,17 +71,18 @@ final class PopupPanelController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
-        panel.isMovableByWindowBackground = true
+        // Background dragging stole edge hits; the chrome bar moves the panel instead.
+        panel.isMovableByWindowBackground = false
 
         // Never use hidesOnDeactivate: a menubar click would hide then toggle-show the overlay.
         panel.hidesOnDeactivate = false
 
+        // Stay at `.floating` so Settings and NSMenu stay above the overlay.
+        panel.level = .floating
         if settings.alwaysOnTop {
-            panel.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)) + 1)
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             removeOutsideClickMonitor()
         } else {
-            panel.level = .statusBar
             panel.collectionBehavior = [.transient, .fullScreenAuxiliary]
             installOutsideClickMonitor()
         }
@@ -122,6 +124,12 @@ final class PopupPanelController {
             frame.origin.y = old.maxY - size.height
         }
 
+        if let screen = panel.screen ?? NSScreen.main {
+            let visible = screen.visibleFrame
+            frame.origin.x = min(max(frame.origin.x, visible.minX), visible.maxX - frame.width)
+            frame.origin.y = min(max(frame.origin.y, visible.minY), visible.maxY - frame.height)
+        }
+
         panel.setFrame(frame, display: true, animate: false)
         hasCustomPosition = true
     }
@@ -129,6 +137,44 @@ final class PopupPanelController {
     /// Recreates hosting content after a profile switch so Observation updates paint immediately.
     func refreshContent() {
         hostingController?.rootView = PopupView()
+    }
+
+    /// Starts a chrome-bar drag so later {@link PopupPanelController.moveToDrag} translations are absolute.
+    func beginMove() {
+        if moveStartOrigin == nil {
+            moveStartOrigin = panel?.frame.origin
+        }
+    }
+
+    /// Moves the overlay by a SwiftUI drag translation (x right, y already converted to AppKit-up).
+    ///
+    /// - Parameter translation: Distance from the drag start, in points.
+    func moveToDrag(translation: CGSize) {
+        guard let panel else { return }
+        let start = moveStartOrigin ?? panel.frame.origin
+        var frame = panel.frame
+        frame.origin = NSPoint(x: start.x + translation.width, y: start.y + translation.height)
+        if let screen = panel.screen ?? NSScreen.main {
+            let visible = screen.visibleFrame
+            frame.origin.x = min(max(frame.origin.x, visible.minX), visible.maxX - frame.width)
+            frame.origin.y = min(max(frame.origin.y, visible.minY), visible.maxY - frame.height)
+        }
+        panel.setFrameOrigin(frame.origin)
+        hasCustomPosition = true
+    }
+
+    /// Ends a chrome-bar drag.
+    func endMove() {
+        moveStartOrigin = nil
+    }
+
+    /// Drops the overlay under pop-up menus for the duration of `work` so submenu clicks hit the menu.
+    ///
+    /// - Parameter work: Synchronous block that presents an `NSMenu` (e.g. `popUp`).
+    func withMenusAbove(_ work: () -> Void) {
+        panel?.level = .normal
+        work()
+        applyAppearance()
     }
 
     /// Creates the borderless panel and installs {@link PopupView} once.
@@ -149,7 +195,7 @@ final class PopupPanelController {
         panel.title = "Keybinds"
         panel.titlebarAppearsTransparent = true
         panel.titleVisibility = .hidden
-        panel.isMovableByWindowBackground = true
+        panel.isMovableByWindowBackground = false
         panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hasShadow = true

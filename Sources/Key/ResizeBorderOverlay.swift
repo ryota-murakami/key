@@ -18,8 +18,8 @@ import SwiftUI
 struct ResizeBorderOverlay: View {
     @Bindable private var settings = SettingsStore.shared
 
-    private let edgeThickness: CGFloat = 6
-    private let cornerSize: CGFloat = 12
+    private let edgeThickness: CGFloat = 10
+    private let cornerSize: CGFloat = 16
 
     @State private var dragStart = CGSize.zero
     @State private var activeEdge: ResizeEdge?
@@ -54,6 +54,11 @@ struct ResizeBorderOverlay: View {
                 .frame(height: edgeThickness)
         }
         .overlay(alignment: .topLeading) { cornerHandle(.topLeading) }
+        .overlay(alignment: .topTrailing) {
+            cornerHandle(.topTrailing)
+                .padding(.top, 36)
+                .padding(.trailing, 0)
+        }
         .overlay(alignment: .bottomLeading) { cornerHandle(.bottomLeading) }
         .overlay(alignment: .bottomTrailing) { cornerHandle(.bottomTrailing) }
     }

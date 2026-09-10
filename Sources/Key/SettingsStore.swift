@@ -102,12 +102,12 @@ final class SettingsStore {
 
     /// Clamps a proposed overlay width to {@link SettingsStore.Defaults.windowWidthRange}.
     func clampWidth(_ width: CGFloat) -> CGFloat {
-        min(max(width, Defaults.windowWidthRange.lowerBound), Defaults.windowWidthRange.upperBound)
+        min(max(width.rounded(), Defaults.windowWidthRange.lowerBound), Defaults.windowWidthRange.upperBound)
     }
 
     /// Clamps a proposed overlay height to {@link SettingsStore.Defaults.windowHeightRange}.
     func clampHeight(_ height: CGFloat) -> CGFloat {
-        min(max(height, Defaults.windowHeightRange.lowerBound), Defaults.windowHeightRange.upperBound)
+        min(max(height.rounded(), Defaults.windowHeightRange.lowerBound), Defaults.windowHeightRange.upperBound)
     }
 
     /// Clamps background opacity so the overlay never becomes fully invisible.

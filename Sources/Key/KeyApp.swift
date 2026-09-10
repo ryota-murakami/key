@@ -140,11 +140,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showContextMenu() {
         guard let button = findMenuBarButton() else { return }
         let menu = buildContextMenu()
-        menu.popUp(
-            positioning: menu.items.first,
-            at: NSPoint(x: 0, y: button.bounds.height),
-            in: button
-        )
+        PopupPanelController.shared.withMenusAbove {
+            menu.popUp(
+                positioning: menu.items.first,
+                at: NSPoint(x: 0, y: button.bounds.height),
+                in: button
+            )
+        }
     }
 
     // MARK: - Right-Click Context Menu
@@ -265,6 +267,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Opens the settings panel for display options and global shortcut capture.
     @objc private func openSettings() {
         if let existing = settingsWindow, existing.isVisible {
+            existing.level = .modalPanel
             existing.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             return
@@ -285,6 +288,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         panel.title = "Settings"
         panel.isFloatingPanel = true
+        panel.level = .modalPanel
         panel.becomesKeyOnlyIfNeeded = false
         panel.contentViewController = hosting
         let fitting = hosting.preferredContentSize

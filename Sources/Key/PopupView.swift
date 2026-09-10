@@ -79,15 +79,35 @@ private struct ProfileChromeBar: View {
 
             Spacer(minLength: 8)
 
+            Color.clear
+                .frame(minWidth: 24, minHeight: 22)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 2)
+                        .onChanged { value in
+                            PopupPanelController.shared.beginMove()
+                            PopupPanelController.shared.moveToDrag(
+                                translation: CGSize(
+                                    width: value.translation.width,
+                                    height: -value.translation.height
+                                )
+                            )
+                        }
+                        .onEnded { _ in
+                            PopupPanelController.shared.endMove()
+                        }
+                )
+                .help("Drag to move overlay")
+
             Button {
                 settings.alwaysOnTop.toggle()
                 settings.save()
                 PopupPanelController.shared.applyAppearance()
             } label: {
                 Image(systemName: settings.alwaysOnTop ? "pin.fill" : "pin")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(settings.alwaysOnTop ? Color.accentColor : Color(white: 0.55))
-                    .frame(width: 26, height: 22)
+                    .frame(width: 32, height: 26)
                     .background(
                         RoundedRectangle(cornerRadius: 6)
                             .fill(settings.alwaysOnTop ? Color.white.opacity(0.10) : Color.clear)
