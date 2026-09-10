@@ -22,7 +22,7 @@ struct PopupView: View {
                     HStack(alignment: .top, spacing: 20) {
                         ForEach(Array(store.columns.enumerated()), id: \.offset) { _, column in
                             VStack(alignment: .leading, spacing: 14) {
-                                ForEach(Array(column.enumerated()), id: \.offset) { _, category in
+                                ForEach(column, id: \.category) { category in
                                     CategoryBlock(category: category, fontSize: settings.fontSize)
                                 }
                             }
@@ -32,7 +32,9 @@ struct PopupView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 12)
                     .padding(.bottom, 12)
+                    .id(settings.selectedProfile)
                 }
+                .scrollContentBackground(.hidden)
                 .scrollIndicators(.never)
 
                 Spacer(minLength: 0)

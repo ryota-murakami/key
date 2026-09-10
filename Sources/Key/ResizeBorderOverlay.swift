@@ -27,23 +27,33 @@ struct ResizeBorderOverlay: View {
     var body: some View {
         // Spacer in the center is click-through so table tabs and the pin stay usable.
         VStack(spacing: 0) {
-            edgeStrip(edge: .top, cursor: .resizeUpDown)
-                .frame(height: edgeThickness)
+            HStack(spacing: 0) {
+                edgeStrip(edge: .top, cursor: .resizeUpDown)
+                    .frame(height: edgeThickness)
+                // Keep the pin button (top-trailing chrome) free of resize hits.
+                Color.clear
+                    .frame(width: 40, height: edgeThickness)
+                    .allowsHitTesting(false)
+            }
 
             HStack(spacing: 0) {
                 edgeStrip(edge: .leading, cursor: .resizeLeftRight)
                     .frame(width: edgeThickness)
                 Spacer(minLength: 0)
                     .allowsHitTesting(false)
-                edgeStrip(edge: .trailing, cursor: .resizeLeftRight)
-                    .frame(width: edgeThickness)
+                VStack(spacing: 0) {
+                    Color.clear
+                        .frame(width: edgeThickness, height: 36)
+                        .allowsHitTesting(false)
+                    edgeStrip(edge: .trailing, cursor: .resizeLeftRight)
+                        .frame(width: edgeThickness)
+                }
             }
 
             edgeStrip(edge: .bottom, cursor: .resizeUpDown)
                 .frame(height: edgeThickness)
         }
         .overlay(alignment: .topLeading) { cornerHandle(.topLeading) }
-        .overlay(alignment: .topTrailing) { cornerHandle(.topTrailing) }
         .overlay(alignment: .bottomLeading) { cornerHandle(.bottomLeading) }
         .overlay(alignment: .bottomTrailing) { cornerHandle(.bottomTrailing) }
     }

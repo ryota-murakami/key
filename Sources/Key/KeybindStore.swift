@@ -35,6 +35,8 @@ final class KeybindStore {
         let data = KeybindLoader.load(profile: SettingsStore.shared.selectedProfile)
         self.keybindData = data
         self.columns = Self.distributeColumns(data.categories, columnCount: 4)
+        // Force the long-lived hosting controller to paint the new table.
+        PopupPanelController.shared.refreshContent()
     }
 
     /// Persists `profile`, reloads its JSON, and refreshes the overlay columns.

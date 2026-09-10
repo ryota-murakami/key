@@ -82,8 +82,12 @@ final class PopupPanelController {
         } else {
             panel.level = .statusBar
             panel.collectionBehavior = [.transient, .fullScreenAuxiliary]
-            hasCustomPosition = false
             installOutsideClickMonitor()
+        }
+
+        // Re-front after a live pin so the overlay actually rises above the focused app.
+        if panel.isVisible {
+            panel.orderFrontRegardless()
         }
     }
 
@@ -154,6 +158,7 @@ final class PopupPanelController {
 
         let hosting = NSHostingController(rootView: PopupView())
         hosting.view.wantsLayer = true
+        hosting.view.layer?.isOpaque = false
         hosting.view.layer?.cornerRadius = 10
         hosting.view.layer?.masksToBounds = true
         hosting.view.layer?.backgroundColor = NSColor.clear.cgColor
