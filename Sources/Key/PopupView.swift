@@ -31,44 +31,41 @@ struct PopupView: View {
     private let settings = SettingsStore.shared
 
     var body: some View {
-        ZStack(alignment: .top) {
-            VStack(spacing: 0) {
-                ProfileChromeBar()
+        overlayBackground
+            .overlay(alignment: .top) {
+                VStack(spacing: 0) {
+                    ProfileChromeBar()
 
-                // Category columns — scroll only when the table is taller than the card.
-                ScrollView {
-                    HStack(alignment: .top, spacing: 20) {
-                        ForEach(Array(store.columns.enumerated()), id: \.offset) { _, column in
-                            VStack(alignment: .leading, spacing: 14) {
-                                ForEach(column, id: \.category) { category in
-                                    CategoryBlock(category: category, fontSize: settings.fontSize)
+                    // Category columns — scroll only when the table is taller than the card.
+                    ScrollView {
+                        HStack(alignment: .top, spacing: 20) {
+                            ForEach(Array(store.columns.enumerated()), id: \.offset) { _, column in
+                                VStack(alignment: .leading, spacing: 14) {
+                                    ForEach(column, id: \.category) { category in
+                                        CategoryBlock(category: category, fontSize: settings.fontSize)
+                                    }
                                 }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 12)
+                        .padding(.bottom, 12)
+                        .id(settings.selectedProfile)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 12)
-                    .padding(.bottom, 12)
-                    .id(settings.selectedProfile)
+                    .scrollContentBackground(.hidden)
+                    .scrollIndicators(.never)
+                    .frame(maxHeight: .infinity)
+
+                    LegendBar(fontSize: settings.legendFontSize, opacity: settings.backgroundOpacity)
                 }
-                .scrollContentBackground(.hidden)
-                .scrollIndicators(.never)
-                .frame(maxHeight: .infinity)
-
-                LegendBar(fontSize: settings.legendFontSize, opacity: settings.backgroundOpacity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-
-            ResizeBorderOverlay()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(overlayBackground)
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(Color.white.opacity(0.22), lineWidth: 1.5)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay { ResizeBorderOverlay() }
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(Color.white.opacity(0.22), lineWidth: 1.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// Card fill uses {@link SettingsStore.backgroundOpacity} so only the background fades.
