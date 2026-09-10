@@ -44,7 +44,7 @@ struct PopupView: View {
 
             ResizeBorderOverlay()
         }
-        .frame(width: settings.windowWidth, height: settings.windowHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(overlayBackground)
         .overlay(
             RoundedRectangle(cornerRadius: 10)

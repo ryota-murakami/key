@@ -211,6 +211,7 @@ final class PopupPanelController {
         panel.animationBehavior = .utilityWindow
 
         let hosting = NSHostingController(rootView: PopupView())
+        hosting.sizingOptions = []
         hosting.view.wantsLayer = true
         hosting.view.layer?.isOpaque = false
         hosting.view.layer?.cornerRadius = 10

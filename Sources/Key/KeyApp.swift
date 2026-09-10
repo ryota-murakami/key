@@ -40,6 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        _ = SettingsStore.shared
         KeybindLoader.ensureUserConfigExists()
 
         PopupPanelController.shared.statusButtonProvider = { [weak self] in
