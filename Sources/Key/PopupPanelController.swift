@@ -140,11 +140,15 @@ final class PopupPanelController {
     private func pinHostingViewToPanel() {
         guard let panel, let content = panel.contentView, let hosting = hostingController else { return }
         hosting.view.frame = content.bounds
+        hosting.view.setFrameOrigin(.zero)
         hosting.rootView = sizedPopupView()
     }
 
     /// Builds {@link PopupView} with an explicit size matching the current panel, so NSHostingView cannot center a hug-sized card.
     private func sizedPopupView() -> SizedPopupView {
+        if let panel {
+            return SizedPopupView(width: panel.frame.width, height: panel.frame.height)
+        }
         let settings = SettingsStore.shared
         return SizedPopupView(width: settings.windowWidth, height: settings.windowHeight)
     }
@@ -217,6 +221,10 @@ final class PopupPanelController {
         panel.identifier = NSUserInterfaceItemIdentifier("key.popup-panel")
         panel.animationBehavior = .utilityWindow
 
+        let box = TopAlignedBox()
+        box.wantsLayer = true
+        box.layer?.backgroundColor = NSColor.clear.cgColor
+
         let hosting = NSHostingController(rootView: sizedPopupView())
         hosting.sizingOptions = []
         hosting.view.wantsLayer = true
@@ -225,9 +233,13 @@ final class PopupPanelController {
         hosting.view.layer?.masksToBounds = true
         hosting.view.layer?.backgroundColor = NSColor.clear.cgColor
         hosting.view.autoresizingMask = [.width, .height]
-        panel.contentViewController = hosting
+        hosting.view.frame = box.bounds
+        box.addSubview(hosting.view)
+
+        panel.contentView = box
         if let content = panel.contentView {
             hosting.view.frame = content.bounds
+            hosting.view.setFrameOrigin(.zero)
         }
 
         self.panel = panel
@@ -326,6 +338,21 @@ final class PopupPanelController {
             queue: .main
         ) { [weak self] _ in
             self?.hasCustomPosition = true
+        }
+    }
+}
+
+/// Flipped container that pins its hosted SwiftUI view to the top-left of {@link KeybindPanel}.
+///
+/// {@link PopupPanelController.ensurePanel} uses this so NSHostingView cannot float mid-panel.
+final class TopAlignedBox: NSView {
+    override var isFlipped: Bool { true }
+
+    override func layout() {
+        super.layout()
+        // Keep the hosted overlay flush to the top-left of the panel.
+        for subview in subviews {
+            subview.frame = bounds
         }
     }
 }
