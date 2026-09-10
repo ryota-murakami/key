@@ -16,6 +16,9 @@ struct ShortcutConfig: Codable {
     var fontSize: CGFloat?
     var windowWidth: CGFloat?
     var windowHeight: CGFloat?
+    var backgroundOpacity: Double?
+    var alwaysOnTop: Bool?
+    var selectedProfile: KeybindProfile?
 
     static let defaultShortcut = "⌘⇧K"
 

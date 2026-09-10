@@ -1,14 +1,14 @@
 import SwiftUI
 
-/// Shared observable store for keybind data, supporting live reload.
+/// Shared observable store for the active {@link KeybindProfile} table and column layout.
 ///
 /// Uses the Observation framework (`@Observable`) for automatic SwiftUI view updates.
-/// Access via `KeybindStore.shared` singleton. Call `reload()` to re-read JSON from disk.
+/// Access via {@link KeybindStore.shared}. Call {@link KeybindStore.select} to switch tables.
 ///
 /// @example
 /// ```swift
-/// let store = KeybindStore.shared
-/// store.reload() // re-reads ~/.config/key/keybinds.json
+/// KeybindStore.shared.select(.vim)
+/// KeybindStore.shared.reload()
 /// ```
 @Observable
 final class KeybindStore {
@@ -23,16 +23,32 @@ final class KeybindStore {
         self.columns = Self.distributeColumns(data.categories, columnCount: 4)
     }
 
-    /// Reloads keybind data from disk and recomputes column layout.
+    /// Reloads the currently selected profile from disk and recomputes columns.
+    ///
+    /// Triggered by the Reload menu item and after {@link KeybindStore.select}.
     ///
     /// @example
     /// ```swift
     /// KeybindStore.shared.reload()
     /// ```
     func reload() {
-        let data = KeybindLoader.load()
+        let data = KeybindLoader.load(profile: SettingsStore.shared.selectedProfile)
         self.keybindData = data
         self.columns = Self.distributeColumns(data.categories, columnCount: 4)
+    }
+
+    /// Persists `profile`, reloads its JSON, and refreshes the overlay columns.
+    ///
+    /// - Parameter profile: Table to show (Cursor / Emacs / Vim / GitHub).
+    ///
+    /// @example
+    /// ```swift
+    /// KeybindStore.shared.select(.github)
+    /// ```
+    func select(_ profile: KeybindProfile) {
+        SettingsStore.shared.selectedProfile = profile
+        SettingsStore.shared.save()
+        reload()
     }
 
     /// Distributes categories across N columns, balancing by total row count.
@@ -52,6 +68,7 @@ final class KeybindStore {
 
         for category in categories {
             let categoryRows = 1 + category.keybinds.count
+            // Start a new column when this category would overflow the target and a later column remains.
             if currentRows > 0
                 && Double(currentRows + categoryRows) > targetPerColumn * 1.15
                 && result.count < columnCount - 1 {

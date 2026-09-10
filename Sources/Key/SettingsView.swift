@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Settings panel for adjusting the global shortcut, font size, and window dimensions.
+/// Settings panel for the global shortcut, display metrics, opacity, and always-on-top.
 ///
-/// Changes apply immediately via `SettingsStore` bindings. The panel uses
-/// a dark theme matching the main popup appearance.
+/// Changes apply immediately via {@link SettingsStore} bindings. The panel uses
+/// a dark theme matching the main overlay appearance.
 ///
 /// @example
 /// ```swift
@@ -43,8 +43,15 @@ struct SettingsView: View {
                 .background(Color(white: 0.3))
 
             settingsRow(label: "Font Size", value: $store.fontSize, range: 10...24, step: 1, unit: "pt")
-            settingsRow(label: "Window Width", value: $store.windowWidth, range: 600...1400, step: 20, unit: "pt")
-            settingsRow(label: "Window Height", value: $store.windowHeight, range: 400...1100, step: 50, unit: "pt")
+            settingsRow(label: "Window Width", value: $store.windowWidth, range: SettingsStore.Defaults.windowWidthRange, step: 20, unit: "pt")
+            settingsRow(label: "Window Height", value: $store.windowHeight, range: SettingsStore.Defaults.windowHeightRange, step: 50, unit: "pt")
+            opacityRow()
+
+            Divider()
+                .background(Color(white: 0.3))
+
+            alwaysOnTopRow()
+            profileRow()
 
             Divider()
                 .background(Color(white: 0.3))
@@ -66,7 +73,7 @@ struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 340)
+        .frame(width: 380)
         .background(Color(nsColor: NSColor(red: 0.15, green: 0.15, blue: 0.15, alpha: 1.0)))
         .onChange(of: store.globalShortcut) { _, newShortcut in
             store.save()
@@ -75,8 +82,19 @@ struct SettingsView: View {
             shortcutStatusIsError = !didRegister
         }
         .onChange(of: store.fontSize) { _, _ in store.save() }
-        .onChange(of: store.windowWidth) { _, _ in store.save() }
-        .onChange(of: store.windowHeight) { _, _ in store.save() }
+        .onChange(of: store.windowWidth) { _, _ in
+            store.save()
+            PopupPanelController.shared.syncContentSize()
+        }
+        .onChange(of: store.windowHeight) { _, _ in
+            store.save()
+            PopupPanelController.shared.syncContentSize()
+        }
+        .onChange(of: store.backgroundOpacity) { _, _ in store.save() }
+        .onChange(of: store.alwaysOnTop) { _, _ in
+            store.save()
+            PopupPanelController.shared.applyAppearance()
+        }
     }
 
     /// A row that records and persists the app-wide popup shortcut.
@@ -118,6 +136,72 @@ struct SettingsView: View {
                     )
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
+        }
+    }
+
+    /// Stepper that edits {@link SettingsStore.backgroundOpacity} as a 10–100% value.
+    private func opacityRow() -> some View {
+        HStack {
+            Text("Background Opacity")
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundStyle(Color(white: 0.75))
+                .frame(width: 150, alignment: .leading)
+
+            Spacer()
+
+            Text("\(Int(store.backgroundOpacityPercent))%")
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundStyle(Color.white)
+                .frame(width: 50, alignment: .trailing)
+
+            Stepper(
+                "",
+                value: Binding(
+                    get: { store.backgroundOpacityPercent },
+                    set: { store.backgroundOpacityPercent = $0 }
+                ),
+                in: 10...100,
+                step: 5
+            )
+            .labelsHidden()
+        }
+    }
+
+    /// Switch that pins the overlay above other windows via {@link PopupPanelController}.
+    private func alwaysOnTopRow() -> some View {
+        Toggle(isOn: $store.alwaysOnTop) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Always on Top")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Color(white: 0.75))
+                Text("Keep the overlay in front of other apps")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(Color(white: 0.45))
+            }
+        }
+        .toggleStyle(.switch)
+        .tint(Color.accentColor)
+    }
+
+    /// Picker that switches the visible {@link KeybindProfile} table.
+    private func profileRow() -> some View {
+        HStack {
+            Text("Keybind Table")
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundStyle(Color(white: 0.75))
+
+            Spacer()
+
+            Picker("", selection: Binding(
+                get: { store.selectedProfile },
+                set: { KeybindStore.shared.select($0) }
+            )) {
+                ForEach(KeybindProfile.allCases) { profile in
+                    Text(profile.displayName).tag(profile)
+                }
+            }
+            .labelsHidden()
+            .frame(width: 140)
         }
     }
 
