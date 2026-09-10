@@ -17,20 +17,23 @@ struct PopupView: View {
             VStack(spacing: 0) {
                 ProfileChromeBar()
 
-                // Category columns
-                HStack(alignment: .top, spacing: 20) {
-                    ForEach(Array(store.columns.enumerated()), id: \.offset) { _, column in
-                        VStack(alignment: .leading, spacing: 14) {
-                            ForEach(Array(column.enumerated()), id: \.offset) { _, category in
-                                CategoryBlock(category: category, fontSize: settings.fontSize)
+                // Category columns — scroll only when the table is taller than the card.
+                ScrollView {
+                    HStack(alignment: .top, spacing: 20) {
+                        ForEach(Array(store.columns.enumerated()), id: \.offset) { _, column in
+                            VStack(alignment: .leading, spacing: 14) {
+                                ForEach(Array(column.enumerated()), id: \.offset) { _, category in
+                                    CategoryBlock(category: category, fontSize: settings.fontSize)
+                                }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+                    .padding(.bottom, 12)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .padding(.bottom, 12)
+                .scrollIndicators(.never)
 
                 Spacer(minLength: 0)
 

@@ -21,6 +21,8 @@ final class PopupPanelController {
     private var panel: KeybindPanel?
     private var hostingController: NSHostingController<PopupView>?
     private var moveObserver: NSObjectProtocol?
+    private var outsideClickMonitor: Any?
+    private var localOutsideClickMonitor: Any?
     /// After the user drags the pinned overlay, keep that origin for the session.
     private var hasCustomPosition = false
 
@@ -53,6 +55,7 @@ final class PopupPanelController {
     /// Hides the overlay without tearing down the panel (next show is cheaper).
     func hide() {
         panel?.orderOut(nil)
+        removeOutsideClickMonitor()
     }
 
     /// Applies opacity-friendly chrome and the always-on-top window level.
@@ -66,15 +69,18 @@ final class PopupPanelController {
         panel.hasShadow = true
         panel.isMovableByWindowBackground = true
 
+        // Never use hidesOnDeactivate: a menubar click would hide then toggle-show the overlay.
+        panel.hidesOnDeactivate = false
+
         if settings.alwaysOnTop {
             panel.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)) + 1)
-            panel.hidesOnDeactivate = false
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            removeOutsideClickMonitor()
         } else {
             panel.level = .statusBar
-            panel.hidesOnDeactivate = true
             panel.collectionBehavior = [.transient, .fullScreenAuxiliary]
             hasCustomPosition = false
+            installOutsideClickMonitor()
         }
     }
 
@@ -180,6 +186,56 @@ final class PopupPanelController {
         }
 
         panel.center()
+    }
+
+    /// Dismisses an unpinned overlay when the user clicks outside it (but not the ⌘ item).
+    ///
+    /// Status-item clicks are ignored so {@link AppDelegate} can toggle without a hide/show race.
+    /// Global + local monitors are both required: other apps only show up globally.
+    private func installOutsideClickMonitor() {
+        if outsideClickMonitor == nil {
+            outsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+                self?.hideIfClickIsOutside()
+            }
+        }
+        if localOutsideClickMonitor == nil {
+            localOutsideClickMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+                self?.hideIfClickIsOutside()
+                return event
+            }
+        }
+    }
+
+    /// Removes the click-outside monitors used for unpinned overlays.
+    private func removeOutsideClickMonitor() {
+        if let outsideClickMonitor {
+            NSEvent.removeMonitor(outsideClickMonitor)
+            self.outsideClickMonitor = nil
+        }
+        if let localOutsideClickMonitor {
+            NSEvent.removeMonitor(localOutsideClickMonitor)
+            self.localOutsideClickMonitor = nil
+        }
+    }
+
+    /// Hides when the pointer is not over the overlay and not over the menubar button.
+    private func hideIfClickIsOutside() {
+        guard !SettingsStore.shared.alwaysOnTop, isVisible, let panel else { return }
+
+        let location = NSEvent.mouseLocation
+        if panel.frame.contains(location) {
+            return
+        }
+
+        if let button = statusButtonProvider?(), let buttonWindow = button.window {
+            let buttonInWindow = button.convert(button.bounds, to: nil)
+            let buttonOnScreen = buttonWindow.convertToScreen(buttonInWindow)
+            if buttonOnScreen.contains(location) {
+                return
+            }
+        }
+
+        hide()
     }
 
     /// Marks the session position as user-owned after a background drag.
